@@ -1,0 +1,74 @@
+---
+title: "02-vectors-list"
+output: html_notebook
+---
+
+This script is used my my video: R Programming: Introduction: List data structure (R Intro-02).
+The video is located at https://youtu.be/_EhiIBKMJi4 
+
+Vectors (1-dimensional data structures)
+
+ * Atomic: elements all SAME type (logical, integer, double, character)  * List: elements of ANY type
+
+```{r}
+li <- list (
+  c("AAPL", "BAC", "FB", "SBUX"),
+  1:10,
+  c(TRUE, TRUE, TRUE, FALSE),
+  list(1:3, c("a", "b", "c")),
+  c(mean, sum)
+)
+
+# li[n] returns a list
+# li[[n]] returns element
+
+li[1]
+li[[1]]
+
+
+```
+
+Assign NAMES to elements in the list (names is a char vector ATTRIBUTE)
+
+```{r}
+nums <- 1:9
+li <- list (
+  stocks = c("AAPL", "BAC", "FB", "SBUX"),
+  nums = nums,
+  own = c(TRUE, TRUE, TRUE, FALSE),
+  sub = list(1:3, c("a", "b", "c")),
+  funcs = c(avg = mean, sum)
+)
+names(li)
+li[c("stocks","own")]
+
+li[["stocks"]]
+
+li$stocks
+li$own
+
+li$funcs$avg(1:10)
+
+```
+
+Name-value association (per R Cookbook); aka, lookup tables
+```{r}
+ticker <- list(AAPL = "Apple", BAC = "Bank of America", FB = "Facebook", SBUX = "Starbucks")
+cat("The company is called", ticker$FB)
+
+```
+
+Regression model returns a LIST
+```{r}
+women
+model <-  lm(formula = weight ~ height, data = women)
+summary(model)
+str(model)
+model[["coefficients"]]
+model$coefficients
+model$coefficients[2]
+model$coefficients["height"]
+
+
+```
+

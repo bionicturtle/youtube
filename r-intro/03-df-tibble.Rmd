@@ -1,0 +1,100 @@
+---
+title: "03-data-frames"
+output: html_notebook
+---
+
+This script is used my my video: R Programming: Introduction: Data frames (R Intro-03).
+The video is located at https://youtu.be/oVhDN7TfC08
+
+A data frame is a list of equal-length vectors.
+
+The video has three parts
+
+* Create a data frame
+* Basic subseting (selecting) from a data frame
+* Tibble is a convenient improvement on the data frame (its class is both dataframe and tibble). Tibble is part of the tidyverse
+
+Create a data frame 
+
+```{r echo=TRUE}
+# character vector
+company <- c("Apple","Blackrock","CVS Health", "Enbridge", "Lennar", "Starbucks")
+
+# create a date frame
+stocks <- data.frame(
+  company = company,
+  sector = c("tech", "financial","healthcare","energy", "cyclical", "cyclical"),
+  revenue = c(261.6, 14.2, 194.6, 34.5, 20.6, 25.3),
+  buy = c(TRUE, TRUE, FALSE, TRUE, TRUE, FALSE), 
+  stringsAsFactors = FALSE 
+)
+
+# easiest way to add column to df, but must be length = 6 observations
+pe_ratio = c(14.3, 15.7, 7.5, 19.1, 8.0, 24.8)
+stocks$pe <- pe_ratio
+
+# can also cbind() or rbind()
+ticker <- c("AAPL", "BLK", "CVS", "ENB", "LEN", "SBUX")
+stocks <- cbind(ticker, stocks, stringsAsFactors = FALSE)
+yext <- list("YEXT", "Yext Inc", "tech", 0.23, TRUE, NA)
+stocks <- rbind(stocks, yext, stringsAsFactors = FALSE)
+
+# list-columns
+li <- list(1, 1:2, 1:3, 1:4, 1:5, 1:6, 1:7)
+stocks$li <- li
+
+# stocks <- stocks[-1]
+stocks$ticker <- NULL
+
+colnames(stocks); names(stocks)
+rownames(stocks)
+nrow(stocks); ncol(stocks) # matrix-like
+
+rownames(stocks) <- ticker # but actually undesirable see 
+ticker <- append(ticker, "YEXT")
+
+stocks$ticker <- rownames(stocks) # put rows back into df
+rownames(stocks) <- NULL
+```
+
+Subset a data frame
+```{r echo=TRUE}
+eg <- stocks[1] # data frame
+
+eg <- stocks[[1]] # vector
+stocks$company
+
+# matrix style
+# stocks[rows, columns]
+eg <- stocks[2:4, 1:2]
+eg <- stocks[, 1:2]
+
+eg <- subset(stocks, select = c(sector, revenue), subset = revenue > 200)
+```
+
+Tibble https://cran.r-project.org/web/packages/tibble/vignettes/tibble.html
+
+* Does not change inputs. Not needed: stringsAsFactors = FALSE
+* Create list columns inside tibble (as above)
+* Lazy arguments (below)
+* Better printout and etc (strict subsetting)
+
+```{r echo=TRUE}
+library(tibble)
+stocks_tbl <- as.tibble(stocks)
+str(stocks_tbl)
+
+stocks_tbl <- tibble(
+  company = c("Apple","Blackrock","CVS Health", "Enbridge", "Lennar", "Starbucks"),
+  sector = c("tech", "financial","healthcare","energy", "cyclical", "cyclical"),
+  revenue = c(261.6, 14.2, 194.6, 34.5, 20.6, 25.3),
+  buy = c(TRUE, TRUE, FALSE, TRUE, TRUE, FALSE),
+  li = list(1:2, 1:3, 1:4, 1:5, 1:6, 1:7)
+)
+stocks_tbl
+
+eg <- tibble(x = 1:5, y = x^2)
+
+cars <- as.tibble(mtcars)
+```
+

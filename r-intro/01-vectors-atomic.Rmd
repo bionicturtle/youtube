@@ -1,0 +1,62 @@
+---
+title: "01-vectors-atomic"
+output: html_notebook
+---
+This is the first video in my YouTube playlist rstats: introduction.
+
+Vectors (come in two flavors:)
+ * Atomic: logical, integer, double, character (these are types or models)
+ * List (Data Frame or tibble)
+ 
+An ATOMIC vector elements of only one type; i.e., either logical, integer, double or character. A list can contain a mix of types, including the element in a list can be another list (aka, recursive).
+
+```{r}
+three_dice <- c(2, 3, 6) # creates a vector with length of 3
+three_dice
+typeof(three_dice) # double
+length(three_dice)
+
+three_dice[2] # retreives the 2nd elements in the vector
+str(three_dice) # STRucture is very useful
+
+three_more <- c(1, 5, 2)
+three_dice + three_more # adding two vectors element-wise
+three_dice <- c(2L, 3L, 6L) # specifies type = integer
+str(three_dice)
+
+one_die <- 4 # a vector of length = 1 is called a scalar
+str(one_die)
+three_dice + one_die # the shorter vector is RECYCLED
+three_dice
+
+one_die <- "four" # character
+two_dice <- c("two", "four")
+str(two_dice)
+length(two_dice)
+two_dice[2]
+
+coin <- c(FALSE, FALSE, TRUE, FALSE) # logical vector
+str(coin)
+sum(coin); mean(coin) # FALSE = 0 and TRUE = 1
+
+```
+
+Coercion and Testing
+```{r}
+# Coercion: least to most flexible: 
+#                   logical -> integer -> double -> character
+
+coin <- c(FALSE, TRUE, FALSE, FALSE)
+coin <- c(FALSE, 1, TRUE, 0)
+str(coin)
+coin <- c(FALSE, 1, "heads", "tails")
+str(coin)
+coin[3]
+
+# Testing
+is.numeric(coin)
+is.character(coin)
+is.numeric(three_dice)
+
+```
+

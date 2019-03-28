@@ -1,0 +1,75 @@
+---
+title: "04-factors"
+output: html_notebook
+---
+
+Factors
+
+* Categorical (e.g., sex, industry/sector) or Ordinal (e.g., Education/income brackets)
+* Attributes are meta-data: a list of name-value pairs attached to a vector (or any object)
+* Factors build on integers (like arrays, matrices, and date-times build on atmoic vectors)
+* Factors are vectors that only contain predefined values
+
+```{r}
+
+# introduction to theory of factors
+# 1st image shows that factors build on Integer vectors (Integers are numeric, atomic vectors)
+# 2nd image shows factors associate two ATTRIBUTES to integer vectors:
+#   class = "factor"
+#   levels = c("m", "f")
+
+library(imager)
+im1 <- load.image("files/04-summary-tree-s3-1.png")
+im2 <- load.image("files/04-factor-class-level.jpg")
+plot(im1, axes=FALSE, xlab="", ylab="")
+plot(im2, axes=FALSE, xlab="", ylab="")
+
+```
+
+
+```{r}
+sex_char <- c("m", "m", "m")
+sex_factor <- factor(sex_char, levels = c("m", "f"))
+table(sex_char)
+table(sex_factor) # includes the factor with no entries
+
+typeof(sex_char)
+typeof(sex_factor)
+attributes(sex_factor)
+class(sex_factor)
+
+sex_factor <- ordered(sex_factor, levels = c("f", "m"))
+str(sex_factor)
+
+```
+
+
+occ daily volume https://www.theocc.com/webapps/daily-volume-statistics
+cboe monthly volume https://markets.cboe.com/us/equities/market_statistics/historical_market_volume/
+
+
+```{r}
+# occ-daily-vol-jan19.csv
+
+library(readr)
+setwd("D:/GitHub/yt/r-intro")
+
+# levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+
+vol_d <- read_csv("files/04-occ-daily-vol-jan19.csv", 
+                      col_types = cols_only(
+                      date = col_date(format = "%m/%d/%Y"),
+                      total = col_number()
+                      ))
+
+vol_d$day <- weekdays(vol_d$date)
+vol_d$day <- as.factor(vol_d$day)
+vol_d$day <- ordered(vol_d$day, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"))
+
+# vol_weekdays <- vol_d %>% group_by(day) %>% summarize(counts = n(), average = mean(total))
+vol_weekdays <- aggregate(vol_d$total, by=list(vol_d$day), FUN=sum)
+colnames(vol_weekdays) <- c("weekday", "total")
+barplot(vol_weekdays$total, names.arg = vol_weekdays$weekday)
+
+```
+
