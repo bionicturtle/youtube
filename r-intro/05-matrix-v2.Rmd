@@ -1,0 +1,53 @@
+---
+title: "05-matrix-v2"
+output: html_notebook
+---
+
+Matrix
+
+* A*B element-wise multiplication
+* A %*% B matrix multiplication
+* t(A) transpose
+* diag(A) creates diagonal matrix from vector 
+  (or retrieves diagonal from a matrix)
+* retrieve elements with [row, column]
+* colnames() and rownames()
+
+```{r}
+# assumptions
+stocks <- c("AAPL", "BAC", "CLDR", "DBX")
+weights <- c(.25, .25, .25, .25)
+sig <- c(0.015, 0.034, 0.007, 0.031)
+rho_v <- c(1.00000, 0.98276, 0.95346, 0.17318, 
+           0.98276, 1.00000, 0.94658, 0.31998, 
+           0.95346, 0.94658, 1.00000, 0.11352, 
+           0.17318, 0.31998, 0.11352, 1.00000)
+
+rho <- matrix(rho_v, nrow = 4, ncol = 4)
+attributes(rho)
+sig_d <- diag(sig)
+sig_d
+rho
+covar <- sig_d %*% rho %*% sig_d
+covar
+colnames(covar) <- stocks
+rownames(covar) <- stocks
+covar["CLDR", "BAC"]
+covar[3, 2]
+covar[ , "BAC"]
+covar["CLDR", ]
+covar[3, ]
+covar[ , 2]
+covar[ , c(2,3)]
+
+wts <- matrix(weights, ncol = 1)
+wts_t <- t(wts)
+wts
+wts_t
+variance <- wts_t %*% (covar %*% wts)
+vol <- sqrt(variance)
+vol
+
+```
+
+
