@@ -1,0 +1,119 @@
+---
+title: "06-subsetting"
+output: html_notebook
+---
+
+```{r}
+library(imager)
+im0 <- load.image("files/hw-cover.png")
+plot(im0, axes=FALSE, xlab="", ylab="")
+
+```
+4.2.1 Atomic vectors
+```{r}
+# atomic vector
+x <- c(2.1, 4.2, 3.3, 5.4)
+
+# positive integers will return elements
+x[c(3,1)]
+
+# negative integers will EXCLUDE elements
+x[-c(1,3)]
+
+# logical vectors
+x[c(TRUE, TRUE, FALSE, FALSE)]
+
+# if named, can use character vectors
+y <- setNames(x, letters[1:4])
+names(y)
+y[c("d", "c", "a")]
+
+```
+
+Matrices and Arrays
+```{r}
+a <- matrix(1:9, nrow = 3)
+colnames(a) <- c("A", "B", "C")
+a[ , 2:3]
+a[c(TRUE, FALSE, TRUE), c("B", "A")]
+
+# [ simplifies to lowest dim. Both return vectors unless drop = FALSE
+a[1, ]
+a[1, 1]
+```
+
+
+Data frames: characteristics of both lists and matrices
+
+* subsetting with single index: behave list and index the columns
+* subsetting with two indices: behave like matrices
+
+```{r}
+df <- data.frame(x = 1:3, y = 3:1, z = letters[1:3])
+df[1:2] # subsetting single index: behaves like a list
+df[df$x == 2, ] 
+
+# two ways to select columns from df
+df[c("x", "z")] # 1. like a list
+df[ , c("x","z")] # 2. like a matrix
+
+# All three of these (identical) return a VECTOR
+df$z 
+df[["z"]]
+df[[3]]
+
+# Both (identical) return a dataframe (just like list)
+df["z"]
+df[3]
+
+subset(df, y > 1)
+subset(df, y > 1, select = x)
+
+```
+
+Preserve dimensionality with drop = FALSE
+```{r}
+a <- matrix(1:4, nrow = 2)
+a[1, ]
+a[1, , drop = FALSE]
+
+df <- data.frame(a = 1:2, b = 1:2)
+df[ , "a"]
+df[ , "a", drop = FALSE]
+```
+
+Train metaphor
+```{r}
+library(imager)
+im1 <- load.image("files/train-1.png")
+im2 <- load.image("files/train-2.png")
+im3 <- load.image("files/train-3.png")
+plot(im1, axes=FALSE, xlab="", ylab="")
+plot(im2, axes=FALSE, xlab="", ylab="")
+plot(im3, axes=FALSE, xlab="", ylab="")
+
+```
+
+Selecting a single element
+```{r}
+x <- list(1:3, "a", 4:6)
+x[1] # list of 1
+x[[1]] # numeric (atomic) vector
+x[1:2]
+x[-2]
+x <- list(1:3, "a", lbl = 4:6)
+x$lbl #x[["lbl"]]
+
+```
+ 
+subsetting and assignment
+```{r}
+x <- 1:5
+x[c(1, 2)] <- c(101, 102)
+x
+
+x <- list(a = 1, b = 2)
+x[["b"]] <- NULL
+str(x)
+
+```
