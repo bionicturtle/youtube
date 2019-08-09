@@ -1,0 +1,116 @@
+---
+title: "ggplot - 2 asset CML"
+output: html_notebook
+---
+The grammar of graphics
+```{r}
+library(imager)
+setwd("D:/GitHub/yt-stage/r-tidyverse/ggplot")
+path_to_files <- file.path("D:/GitHub/yt-stage/r-tidyverse/ggplot/files")
+im1 <- load.image(file.path(path_to_files, "ggplot-layers.png"))
+plot(im1, axes=FALSE, xlab="", ylab="")
+```
+
+Typical example
+```{r}
+library(ggplot2)
+data(mpg)
+mpg
+
+# simple: data + aes() + geom()
+ggplot(data = mpg, aes(x = displ, y = hwy, color = as.factor(cyl))) + geom_point()
+
+
+```
+
+my 2-asset CML
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# riskfree rate and two assets (a & b)
+rf = 0.06
+r_a <- .1; sig_a <- .1
+r_b <- .16; sig_b <- .2
+
+# accepts weights, returns and correlation; returns df: weight, return, sigma
+r_p <- function(w_a, r_a, sig_a, r_b, sig_b, rho_ab) {
+    w_b = 1 - w_a
+    r_ab = w_a * r_a + (w_b * r_b)
+    sig2_ab = (w_a * sig_a)^2 + (w_b * sig_b)^2 + 2*w_a*w_b*sig_a*sig_b*rho_ab
+    sig_ab = sqrt(sig2_ab)
+    portfolio_df <- data.frame("weight" = w_a, "return" = r_ab, "sigma" = sig_ab)
+    return(portfolio_df)
+}
+
+# analytical solution to portfolio with highest Sharpe ratio
+opt_weight <- function(r_a, sig_a, r_b, sig_b, rho_ab) {
+    w_a <- sig_b*(r_b*rho_ab*sig_a-rf*rho_ab*sig_a-r_a*sig_b+rf*sig_b)/
+    (-r_b*sig_a^2+
+         rf*sig_a^2+
+         r_a*rho_ab*sig_a*sig_b+
+         r_b*rho_ab*sig_a*sig_b-
+         2*rf*rho_ab*sig_a*sig_b-
+         r_a*sig_b^2+
+         rf*sig_b^2)
+    return(w_a)
+}
+
+# minimum value portfolio
+w_mvp <- function(sig_a, sig_b, rho_ab) {
+    (sig_b^2-(rho_ab*sig_a*sig_b))/(sig_a^2+sig_b^2-(2*rho_ab*sig_a*sig_b))
+}
+
+w_a <- seq(from = 0, to = 1, by = 0.05)
+
+# portfolio with rho = zero vs rho = 0.8
+p_rho_0 <- r_p(w_a, r_a, sig_a, r_b, sig_b, rho_ab = 0)
+p_rho_8 <- r_p(w_a, r_a, sig_a, r_b, sig_b, rho_ab = .8)
+
+# p1: data = p_rho_0, aes(x = sigma, y = return)
+# p1: data = p_rho_8
+p1 <- ggplot(p_rho_0, aes(x = sigma, y = return)) + 
+    geom_path(color = "red", linetype = "dashed") +
+    geom_path(data = p_rho_8, color = "blue")
+p1
+
+p_rho_both <- rbind(mutate(p_rho_0, type = "z"),
+                    mutate(p_rho_8, type = "8")) %>% arrange(weight)
+    
+# p2: data = p_rho_both, aes(x = sigma, y = return, color = type) 
+p2 <- ggplot(p_rho_both, aes(x = sigma, y = return, color = type)) + geom_path()
+p2
+
+# p3: facet_wrap(~type, nrow = 2)
+p3 <- ggplot(p_rho_both, aes(x = sigma, y = return)) +
+    geom_path() + 
+    facet_wrap(~type, nrow = 2)
+p3
+
+# optimal portfolio
+w_a_optimal <- opt_weight(r_a, sig_a, r_b, sig_b, rho_ab = 0)
+p_market <- r_p(w_a_optimal, r_a, sig_a, r_b, sig_b, rho_ab = 0)
+
+# p4: p2 + optimal 
+p4 <- p2 + geom_point(data = p_market, 
+                      aes(x = sigma, y = return), 
+                      size = 4, 
+                      color = "purple")
+p4
+
+# p5: p4 + CML
+p5 <- p4 + geom_abline(intercept = rf, slope = (p_market$return - rf)/p_market$sigma)
+p5
+
+# MVP
+w_a_mvp <- w_mvp(sig_a, sig_b, rho_ab = 0)
+p_mvp <- r_p(w_a_mvp, r_a, sig_a, r_b, sig_b, rho_ab = 0)
+
+# p6: p5 + MVP
+p6 <- p5 + geom_point(data = p_mvp, aes(x = sigma, y = return), size = 6, 
+                      color = "orange", shape = 17)
+p6 + scale_x_continuous(limits = c(0, 0.2)) +
+    theme_classic()
+
+```
+
